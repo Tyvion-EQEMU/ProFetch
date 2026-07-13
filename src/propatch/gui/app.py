@@ -7,6 +7,7 @@ from propatch import config, db, log as plog
 from propatch.gui.views.components_view import ComponentsView
 from propatch.gui.views.log_view import LogView
 from propatch.gui.views.setup_wizard import SetupWizard
+from propatch.gui.worker import build_fallback_manifest
 
 logger = logging.getLogger("propatch")
 
@@ -50,43 +51,6 @@ def _seed_propatch_version() -> None:
         pass
 
 
-def _build_gui_manifest() -> list[dict]:
-    """Build the display manifest for the component table.
-
-    ProPatch itself is listed first in the 'patcher' section so users can
-    see at a glance whether the patcher needs updating.  MQ entries come
-    from the hardcoded COMPONENTS fallback; EQ server files are a static
-    fallback since they're only defined in the remote manifest TOML.
-    """
-    from propatch.components import COMPONENTS
-
-    result = [
-        {"id": "propatch", "name": "ProPatch", "section": "patcher", "description": ""},
-    ]
-    for comp in COMPONENTS.values():
-        if comp.id == "propatch":
-            continue  # already listed in patcher section above
-        result.append({
-            "id":          comp.id,
-            "name":        comp.name,
-            "section":     "mq",
-            "description": "",
-        })
-
-    # EQ server files — mirrored from manifest.toml; section="server" maps to
-    # "Server Components" in the table header
-    _EQ_SERVER_FILES = [
-        {"id": "spells_us", "name": "Spells (spells_us.txt)",          "section": "server", "description": ""},
-        {"id": "dbstr_us",  "name": "DB Strings (dbstr_us.txt)",       "section": "server", "description": ""},
-        {"id": "skillcaps", "name": "Skill Caps (SkillCaps.txt)",      "section": "server", "description": ""},
-        {"id": "basedata",  "name": "Base Data (BaseData.txt)",        "section": "server", "description": ""},
-        {"id": "dinput8",   "name": "DirectInput Shim (dinput8.dll)",  "section": "server", "description": ""},
-    ]
-    result.extend(_EQ_SERVER_FILES)
-
-    return result
-
-
 class App(ctk.CTk):
     """Root application window. Owns shared state and view switching."""
 
@@ -102,7 +66,7 @@ class App(ctk.CTk):
         _seed_propatch_version()
 
         self._gui_settings = config.load_gui_settings()
-        self._manifest     = _build_gui_manifest()
+        self._manifest     = build_fallback_manifest()
         self._current_view: ctk.CTkFrame | None = None
 
         self.grid_rowconfigure(0, weight=1)

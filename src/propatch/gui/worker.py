@@ -6,11 +6,56 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from propatch import config, db, updater
-from propatch.components import COMPONENTS
+from propatch.components import COMPONENTS, EqFile
 
 logger = logging.getLogger("propatch")
 
 StatusCallback = Callable[[str, str, Optional[str], Optional[str]], None]
+
+# Static fallback shown instantly at GUI startup and used if a live manifest
+# fetch fails — mirrors the [[eq_files]] entries in manifest.toml.
+_EQ_FALLBACK: list[EqFile] = [
+    EqFile(id="spells_us", name="Spells (spells_us.txt)", filename="", url="", destination=""),
+    EqFile(id="dbstr_us", name="DB Strings (dbstr_us.txt)", filename="", url="", destination=""),
+    EqFile(id="skillcaps", name="Skill Caps (SkillCaps.txt)", filename="", url="", destination=""),
+    EqFile(id="basedata", name="Base Data (BaseData.txt)", filename="", url="", destination=""),
+    EqFile(id="dinput8", name="DirectInput Shim (dinput8.dll)", filename="", url="", destination=""),
+]
+
+
+def _rows_from_manifest(components: dict, eq_files: list[EqFile]) -> list[dict]:
+    """Flatten a (components, eq_files) manifest into the GUI's row-dict shape."""
+    result = [
+        {"id": "propatch", "name": "ProPatch", "section": "patcher", "description": ""},
+    ]
+    for comp in components.values():
+        if comp.id == "propatch":
+            continue
+        result.append({"id": comp.id, "name": comp.name, "section": "mq", "description": ""})
+    for ef in eq_files:
+        result.append({"id": ef.id, "name": ef.name, "section": "server", "description": ""})
+    return result
+
+
+def build_fallback_manifest() -> list[dict]:
+    """No network — used to paint the component list instantly on startup."""
+    return _rows_from_manifest(COMPONENTS, _EQ_FALLBACK)
+
+
+def run_manifest_refresh(on_done: Callable[[list[dict]], None]) -> None:
+    """Background-thread: fetch the live manifest.toml and hand rows to on_done.
+
+    Runs on its own thread (not through _start_worker's single-slot queue) so
+    it never blocks or gets skipped by a concurrent rescan/update.
+    """
+    try:
+        components, eq_files = asyncio.run(_load_manifest())
+    except Exception as exc:
+        logger.warning(f"GUI manifest refresh failed: {exc}")
+        return
+    if not eq_files:
+        eq_files = _EQ_FALLBACK
+    on_done(_rows_from_manifest(components, eq_files))
 
 
 def _get_eq_dirs(settings) -> list[Path]:

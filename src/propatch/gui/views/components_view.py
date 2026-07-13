@@ -7,7 +7,7 @@ import customtkinter as ctk
 
 from propatch.gui.widgets.component_row import ComponentRow, COL_LAUNCH_W, COL_VER_W, COL_STATUS_W
 from propatch.gui.widgets.header import build_header, _STRIP_BG, _MARGIN
-from propatch.gui.worker import run_status_check, run_update
+from propatch.gui.worker import run_status_check, run_update, run_manifest_refresh
 from propatch import config
 
 logger = logging.getLogger("propatch")
@@ -36,6 +36,13 @@ class ComponentsView(ctk.CTkFrame):
         self._build()
         self._fit_window()
         self.after(500, self._do_rescan)
+
+        # Refresh the row list from the live manifest.toml on its own thread,
+        # independent of _start_worker's single-slot queue, so a slow/failed
+        # network fetch never delays or gets skipped by the rescan above.
+        threading.Thread(
+            target=run_manifest_refresh, args=(self._on_manifest_refreshed,), daemon=True
+        ).start()
 
     # ── Layout ────────────────────────────────────────────────────────────────
 
@@ -221,6 +228,18 @@ class ComponentsView(ctk.CTkFrame):
             row.set_status(status, local, remote)
         if status in ("current", "update_available", "updated", "error"):
             self._refresh_checked_label()
+
+    def _on_manifest_refreshed(self, manifest: list[dict]) -> None:
+        self._app.after(0, lambda: self._apply_manifest_refresh(manifest))
+
+    def _apply_manifest_refresh(self, manifest: list[dict]) -> None:
+        if not self.winfo_exists():
+            return
+        if {c["id"] for c in manifest} == {c["id"] for c in self._manifest}:
+            return
+        self._manifest = manifest
+        self._rebuild_list()
+        self._do_rescan()
 
     def _refresh_checked_label(self) -> None:
         now  = datetime.now()
