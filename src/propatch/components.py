@@ -102,4 +102,16 @@ COMPONENTS: dict[str, Component] = {
         enabled_key="proloot",
         show_version=True,
     ),
+    "protask": Component(
+        id="protask",
+        name="ProTask",
+        owner="Tyvion-EQEMU",
+        repo="ProTask",
+        tracking=TrackingMethod.RELEASE_TAG,
+        destination="lua/protask",
+        zip_subdir="protask",
+        protected_patterns=[],
+        enabled_key="protask",
+        show_version=True,
+    ),
 }

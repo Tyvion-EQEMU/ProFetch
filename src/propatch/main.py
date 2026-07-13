@@ -31,6 +31,8 @@ _ALIASES: dict[str, str] = {
     "e9loot":    "proloot",
     "proloot":   "proloot",
     "loot":      "proloot",
+    "protask":   "protask",
+    "task":      "protask",
 }
 
 app = typer.Typer(
@@ -160,7 +162,7 @@ async def _status_async(db_path: Path, settings) -> None:
 def update(
     component: str = typer.Argument(
         None,
-        help="Component to update: rekkas, mq2rwarp, rgmercs, proloot. Omit to update all.",
+        help="Component to update: rekkas, mq2rwarp, rgmercs, proloot, protask. Omit to update all.",
     ),
 ):
     """Download and install updates for MQ components (and EQ files when updating all)."""
