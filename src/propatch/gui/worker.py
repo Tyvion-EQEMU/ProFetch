@@ -92,7 +92,7 @@ def _emit_status(result: dict, on_status: StatusCallback) -> None:
         on_status(cid, "update_available", local, remote)
     elif status == "untracked":
         ver = _display_ver(result.get("remote"), vtag)
-        on_status(cid, "current", ver, ver)
+        on_status(cid, "untracked", ver, ver)
     else:
         on_status(cid, "error", None, None)
 
@@ -142,8 +142,6 @@ def _log_update_result(r: dict, components: dict) -> None:
 
     if status == "updated":
         msg = f"  {name}: updated  {old_v} → {new_v}"
-    elif status == "adopted":
-        msg = f"  {name}: adopted  (registered as {new_v})"
     elif status == "current":
         msg = f"  {name}: already current ({new_v})"
     elif status == "error":
@@ -430,7 +428,7 @@ def run_update(
                         ),
                     )
                     _log_update_result(result, components)
-                    if result["status"] in ("updated", "adopted"):
+                    if result["status"] == "updated":
                         ver = _display_ver(result.get("new_version"))
                         on_status(cid, "updated", ver, ver)
                     elif result["status"] == "current":

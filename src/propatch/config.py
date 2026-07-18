@@ -21,6 +21,7 @@ mq2rwarp = true
 rgmercs = true
 proloot = true
 protask = true
+buttonmaster = true
 
 [protected]
 always = ["config/*", "MacroQuest.ini"]
@@ -96,7 +97,7 @@ _GUI_DEFAULTS: dict = {
     # from settings.local.toml via load_settings() so GUI and CLI always
     # share the same source of truth.
     "selected_components":    ["propatch",
-                               "rekkas_mq", "mq2rwarp", "rgmercs", "proloot", "protask",
+                               "rekkas_mq", "mq2rwarp", "rgmercs", "proloot", "protask", "buttonmaster",
                                "spells_us", "dbstr_us", "skillcaps", "basedata", "dinput8"],
     "custom_components":      [],
     "log_level":              "INFO",

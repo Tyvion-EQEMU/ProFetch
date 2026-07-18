@@ -33,6 +33,8 @@ _ALIASES: dict[str, str] = {
     "loot":      "proloot",
     "protask":   "protask",
     "task":      "protask",
+    "buttonmaster": "buttonmaster",
+    "bm":           "buttonmaster",
 }
 
 app = typer.Typer(
@@ -162,7 +164,7 @@ async def _status_async(db_path: Path, settings) -> None:
 def update(
     component: str = typer.Argument(
         None,
-        help="Component to update: rekkas, mq2rwarp, rgmercs, proloot, protask. Omit to update all.",
+        help="Component to update: rekkas, mq2rwarp, rgmercs, proloot, protask, buttonmaster. Omit to update all.",
     ),
 ):
     """Download and install updates for MQ components (and EQ files when updating all)."""
@@ -217,9 +219,6 @@ def _log_update_result(log, result: dict) -> None:
         new = ui._short(result.get("new_version"))
         written = result.get("written", 0)
         log.info(f"  {name}: updated {old} -> {new} ({written} files)")
-    elif status == "adopted":
-        new = ui._short(result.get("new_version"))
-        log.info(f"  {name}: adopted (existing files registered as {new})")
     elif status == "current":
         log.info(f"  {name}: already current")
     elif status == "error":

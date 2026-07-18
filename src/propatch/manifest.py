@@ -1,5 +1,6 @@
 ﻿from __future__ import annotations
 
+import os
 import sys
 
 import httpx
@@ -9,6 +10,11 @@ from propatch.components import Component, EqFile, TrackingMethod
 MANIFEST_URL = (
     "https://raw.githubusercontent.com/Tyvion-EQEMU/propatch-manifest/main/manifest.toml"
 )
+
+# Dev/test escape hatch: point at a local manifest.toml instead of fetching from
+# GitHub, e.g. to preview an uncommitted manifest change before it's pushed.
+# Unset in any real build/install, so production behavior is untouched.
+_LOCAL_MANIFEST_PATH_ENV = "PROPATCH_MANIFEST_PATH"
 
 
 def _load_toml(text: str) -> dict:
@@ -71,9 +77,16 @@ def _parse_help_pack(d: dict) -> EqFile:
 async def fetch_manifest(
     client: httpx.AsyncClient,
 ) -> tuple[list[Component], list[EqFile]]:
-    r = await client.get(MANIFEST_URL, follow_redirects=True)
-    r.raise_for_status()
-    data = _load_toml(r.text)
+    local_path = os.environ.get(_LOCAL_MANIFEST_PATH_ENV)
+    if local_path:
+        from pathlib import Path
+        text = Path(local_path).read_text(encoding="utf-8")
+    else:
+        r = await client.get(MANIFEST_URL, follow_redirects=True)
+        r.raise_for_status()
+        text = r.text
+
+    data = _load_toml(text)
 
     components = [_parse_component(c) for c in data.get("components", [])]
     eq_files = [_parse_eq_file(f) for f in data.get("eq_files", [])]

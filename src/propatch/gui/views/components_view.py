@@ -226,7 +226,7 @@ class ComponentsView(ctk.CTkFrame):
         row = self._rows.get(cid)
         if row:
             row.set_status(status, local, remote)
-        if status in ("current", "update_available", "updated", "error"):
+        if status in ("current", "update_available", "untracked", "updated", "error"):
             self._refresh_checked_label()
 
     def _on_manifest_refreshed(self, manifest: list[dict]) -> None:

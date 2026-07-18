@@ -11,7 +11,7 @@ from propatch.gui.widgets.tooltip import Tooltip
 
 logger = logging.getLogger("propatch")
 
-_MQ_COMPONENTS = {"rekkas_mq", "mq2rwarp", "rgmercs", "proloot", "protask"}
+_MQ_COMPONENTS = {"rekkas_mq", "mq2rwarp", "rgmercs", "proloot", "protask", "buttonmaster"}
 
 _NARRATIVE = (
     "Welcome to ProPatch — the EQ Profusion component manager.\n\n"

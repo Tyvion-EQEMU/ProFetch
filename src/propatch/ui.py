@@ -51,11 +51,6 @@ def print_update_result(result: dict) -> None:
 
     if status == "current":
         console.print(f"  [green]✓[/green] [white]{name}[/white]  [dim]up to date ({new})[/dim]")
-    elif status == "adopted":
-        console.print(
-            f"  [green]✓[/green] [white]{name}[/white]  "
-            f"[dim]adopted (existing files registered as[/dim] [cyan]{new}[/cyan][dim])[/dim]"
-        )
     elif status == "updated":
         if old == "Not installed":
             console.print(
