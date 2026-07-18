@@ -33,6 +33,10 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
+# Local-only dev tools — never push these
+CLAUDE.md
+LOCAL_DEV_NOTES.md
+
 # ProPatch runtime files — live alongside the exe, not in the repo
 settings.local.toml
 propatch.db
