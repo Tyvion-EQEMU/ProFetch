@@ -6,13 +6,15 @@ This document tracks planned features, improvements, and longer-term ideas for P
 
 ## Near-Term (Next 1–2 Releases)
 
-### Custom Components
-The UI already has a hidden "+ Add custom component" button. The plan is to let users register their own GitHub repos (or local paths) so ProPatch can track and update them alongside the built-in components.
-
+### Per-Component Dev/Beta Channel
+Let a component opt into tracking a `dev`/`beta` branch instead of its normal stable branch, toggled per-component (e.g. an "Advanced" switch on that row), defaulting to stable for everyone. Needed for maintainers running their own fork of an addon (e.g. buttonmaster, RGMercs) who want to test in-progress commits on their own live install without disturbing anyone else, and eventually to let other users opt into pre-release testing of a specific addon without switching every component to bleeding-edge. Requires extending `Component` with an optional alternate branch, a persisted per-component channel preference, and `updater.py` resolving the right branch per component based on it.
 
 ---
 
 ## Medium-Term
+
+### Custom Components
+The UI already has a hidden "+ Add custom component" button. The plan is to let users register their own GitHub repos (or local paths) so ProPatch can track and update them alongside the built-in components.
 
 ### Tray Icon Mode
 Run ProPatch minimized to the system tray. It quietly checks for updates in the background and shows a badge when something needs attention — similar to how a lot of launcher tools work.
